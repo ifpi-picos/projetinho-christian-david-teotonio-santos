@@ -188,7 +188,15 @@ export function resumo(){
     console.log(`O número total de tarefas é ${result}.`)
     console.log(`O número de tarefas pendentes é ${quant_tarefas}.`)
     console.log(`O número total de tarefas concluídas é ${quant_tarefas_conc}.`)
-    const dia = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Um dia');
-    console.log("Próximas tarefas a vencer:")
-    console.table(dia);
+    const data_hj = prompt("\nPara visualizar as próximas tarefas a vencer, digite a data atual.\nDigite no formato xx/xx/xxxx:\n");
+    let separa_dois = data_hj.split('/')
+    let data_separada = new Date(separa_dois[2], separa_dois[1]-1, separa_dois[0]);
+    for (const k of tarefas){
+        if(data_separada < k.DATA_VENC){
+            const data_proxima = []
+            data_proxima.push(k)
+            console.log('Tarefa a vencer:')
+            console.table(data_proxima)
+        }
+    }
 }
