@@ -1,29 +1,41 @@
 const tarefas = [];
 const tarefas_concluidas = [];
 
+/*FUNÇÃO ADICIONAR*/
 export function adicionar(){
     console.log("Os campos marcados com * são obrigatórios!")
     let titulo = prompt("*Digite o título da tarefa que deseja adicionar:\n");
     const descricao = prompt("Digite uma breve descrição da tarefa que deseja adicionar:\n");
-    let dados_venc = prompt("*Digite a data em que essa tarefa vencerá:\n (Um dia, Uma semana, Um mes, Um bimestre, Um semestre, Um ano)\n");
+    let dados_venc = prompt("*Digite uma data de vencimento no formato xx/xx/xxxx:\n");
+    let separa = dados_venc.split('/')
+    let dataConvertida = new Date(separa[2], separa[1]-1, separa[0]);
+    // let dataBrasilia = dataConvertida.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    let data_criacao = prompt("Digite a data que esta tarefa está sendo criada no formato xx/xx/xxxx:\n")
+    let separa_um = data_criacao.split('/')
+    let dataConvertida_um = new Date(separa_um[2], separa_um[1]-1, separa_um[0]);
     let prioridade = prompt("*Digite o nível de importância da tarefa que deseja adicionar:\n (Baixa, Media ou Alta)\n");
+
+/*DESTAQUE DA OBRIGATORIEDADE DOS CAMPOS*/
     for (let i = titulo; i === null; i = titulo){
         const tit_obrig = prompt("*É obrigatório o título. Digite um:\n")
         titulo =  tit_obrig
     }
     for (let o = dados_venc; o === null; o = dados_venc){
-        const dados_obrig = prompt("*É obrigatório a data de vencimento. Digite um:\n")
+        const dados_obrig = prompt("*É obrigatório a data de vencimento. Digite uma:\n")
         dados_venc =  dados_obrig
     }
     for (let f = prioridade; f === null; f = prioridade){
-        const prio_obrig = prompt("*É obrigatório a prioridade. Digite um:\n")
+        const prio_obrig = prompt("*É obrigatório a prioridade. Digite uma:\n")
         prioridade = prio_obrig
     }
-    tarefas.push({TITULO:titulo,DESCRICAO:descricao,DATA_VENC:dados_venc,PRIORIDADE:prioridade,STATUS:"Pendente"});
+/*FIM DAS FUNÇÕES DE OBRIGATORIEDADE DOS CAMPOS*/
+    tarefas.push({TITULO:titulo,DESCRICAO:descricao,DATA_VENC:dataConvertida,PRIORIDADE:prioridade,STATUS:"Pendente",DATA_CRIACAO:dataConvertida_um});
     console.log("Tarefa adicionada com sucesso!")
     console.table(tarefas)
+    return dataConvertida;
 }
 
+/*FUNÇÃO LISTAR*/
 export function listar (){
     console.log("Suas tarefas são:")
     console.table(tarefas)
@@ -31,10 +43,21 @@ export function listar (){
     if (opcao === "Ordenar"){
         const op = prompt("Escolha como você irá ordenar as tarefas:\n1 - Por dados de vencimento, 2 - por prioridade ou 3 - Dados de criação.")
         if (op == 1){
-            
+            const ordem_data = tarefas.sort((a, b) => a.DATA_VENC - b.DATA_VENC);
+            console.table(ordem_data)
+            }
+        else if (op == 2){
+            const valor_priori = { "Alta": 1, "Media": 2, "Baixa": 3 };            
+            const ordem_prioridade = tarefas.sort((a,b) => valor_priori[a.PRIORIDADE] - valor_priori[(b.PRIORIDADE)]);
+            console.table(ordem_prioridade)
+        }
+        else if (op == 3){
+            const ordem_data_cria = tarefas.sort((a, b) => a.DATA_CRIACAO - b.DATA_CRIACAO);
+            console.table(ordem_data_cria)
         }
     }
-    const exibicao = prompt("Escolha o filtro que deseja listar as suas tarefas:\n 1 - Filtrar por status (pendente/concluído);\n 2 - Filtrar por prioridade;\n3 - Filtrar por dados de vencimento.\n")
+    else{
+        const exibicao = prompt("Escolha o filtro que deseja listar as suas tarefas:\n 1 - Filtrar por status (pendente/concluído);\n 2 - Filtrar por prioridade;\n3 - Filtrar por dados de vencimento.\n")
     if (exibicao == 1){
         console.log("Tarefas pendentes:")
         console.table(tarefas);
@@ -53,27 +76,33 @@ export function listar (){
         console.table(alta);
         
     }
-    else{
-        const dia = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Um dia');
-        console.log("Tarefas que vencem em um dia:")
-        console.table(dia);
-        const semana = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Uma semana');
-        console.log("Tarefas que vencem em uma semana:")
-        console.table(semana);
-        const mes = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Um mes');
-        console.log("Tarefas que vencem em um mês:")
-        console.table(mes);
-        const bimestre = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Um bimestre');
-        console.log("Tarefas que vencem em um bimestre:")
-        console.table(bimestre);
-        const semestre = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Um semestre');
-        console.log("Tarefas que vencem em um semestre:")
-        console.table(semestre);
-        const ano = tarefas.filter(tarefa => tarefa.DATA_VENC === 'Um ano');
-        console.log("Tarefas que vencem em um ano:")
-        console.table(ano);
-        
+    else if (exibicao == 3){
+        const data_hj = prompt("Qual a data atual?\nDigite a data no formato xx/xx/xxxx:\n");
+        let separa_dois = data_hj.split('/')
+        let data_separada = new Date(separa_dois[2], separa_dois[1]-1, separa_dois[0]);
+        for (const l of tarefas){
+            if(data_separada < l.DATA_VENC){
+                const data_venc = []
+                data_venc.push(l)
+                console.log('Data da tarefa que ainda vai vencer:')
+                console.table(data_venc)
+            } 
+            else if (data_separada > l.DATA_VENC){
+                const data_venceu = []
+                data_venceu.push(l)
+                console.log('Data da tarefa que já venceu:')
+                console.table(data_venceu)
+            }
+            else if (data_separada = l.DATA_VENC){
+                const data_igual = []
+                data_igual.push(l)
+                console.log('A data é hoje!')
+                console.table(data_igual)
+            }
+        }
+        }
     }
+    
 }
 
 export function editar(){
