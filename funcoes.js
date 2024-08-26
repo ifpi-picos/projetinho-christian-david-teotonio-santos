@@ -5,9 +5,12 @@ const tarefas_concluidas = [];
 export function adicionar() {
   console.log("Os campos marcados com * são obrigatórios!");
   let titulo = prompt("*Digite o título da tarefa que deseja adicionar:\n");
-  const descricao = prompt(
+  let descricao = prompt(
     "Digite uma breve descrição da tarefa que deseja adicionar:\n"
   );
+  if (descricao == null){
+    descricao = "Tarefa sem descrição"
+  }
   let data_criacao = new Date();
   data_criacao.setHours(0, 0, 0, 0);
   const data_cria_convert = data_criacao.toISOString().split('T')[0];
@@ -20,7 +23,7 @@ export function adicionar() {
   let separa = dados_venc.split("/");
   let dataConvertida = new Date(separa[2], separa[1] - 1, separa[0]);
   let date = dataConvertida.toISOString().split('T')[0];
-  while (date <= data_cria_convert) {
+  while (date < data_cria_convert) {
     const date_menor = prompt("*A data de vencimento precisa ser maior que a de criação. Digite uma no formato xx/xx/xxxx:\n");
     let separa_quatro = date_menor.split("/");
     let data_accept = new Date(separa_quatro[2], separa_quatro[1] - 1, separa_quatro[0]);
@@ -61,6 +64,8 @@ export function listar() {
   const opcao = prompt(
     "Como você deseja listar suas tarefas?\nOrdenar ou filtrar:\n"
   );
+
+  /*ORDENAR*/
   if (opcao === "Ordenar") {
     const op = prompt(
       "Escolha como você irá ordenar as tarefas:\n1 - Por dados de vencimento, 2 - por prioridade ou 3 - Dados de criação."
@@ -80,6 +85,8 @@ export function listar() {
       );
       console.table(ordem_data_cria);
     }
+
+  /*FILTRAR*/
   } else {
     const exibicao = prompt(
       "Escolha o filtro que deseja listar as suas tarefas:\n 1 - Filtrar por status (pendente/concluído);\n 2 - Filtrar por prioridade;\n3 - Filtrar por dados de vencimento.\n"
@@ -122,45 +129,71 @@ export function listar() {
           data_igual.push(l);
         }
       }
-      console.log("Data da tarefa que ainda vai vencer:");
+      console.log("Tarefa(s) que ainda vai/vão vencer:");
       console.table(data_venc);
-      console.log("Data da tarefa que já venceu:");
+      console.log("Tarefa(s) que já venceu/venceram:");
       console.table(data_venceu);
-      console.log("A data é hoje!");
+      console.log("Tarefa(s) com data de vencimento para hoje:");
       console.table(data_igual);
     }
   }
 }
 
+/*FUNÇÃO EDITAR*/
 export function editar() {
   const titulopesq = prompt("Digite o título da tarefa que deseja editar:\n");
-
-  for (const n of tarefas) {
-    if (n.TITULO == titulopesq) {
-      const titulo_novo = prompt("Digite um novo título para a tarefa:\n");
-      n.TITULO = titulo_novo;
-      const descricao_nova = prompt(
-        "Digite uma nova descrição para a tarefa:\n"
-      );
-      n.DESCRICAO = descricao_nova;
-      const data_de_venc_nova = prompt(
-        "Digite uma nova data de vencimento no formato xx/xx/xxxx:\n"
-      );
+    if (tarefas[0].TITULO == titulopesq) {
+      let titulo_novo = prompt("Digite um novo título para a tarefa:\n");
+      for (let t = titulo_novo; t === null; t = titulo_novo) {
+        const titu_obrig = prompt("*É obrigatório o título. Digite um:\n");
+        titulo_novo = titu_obrig;
+      }
+      tarefas[0].TITULO = titulo_novo;
+      let data_de_venc_nova = null
+      while (data_de_venc_nova === null) {
+        data_de_venc_nova = prompt(
+          "*Digite uma data de vencimento no formato xx/xx/xxxx:\n"
+        );
+      }
+      let data_criation = new Date();
+      data_criation.setHours(0, 0, 0, 0);
+      const data_criation_convert = data_criation.toISOString().split('T')[0];
+      
       let separa_tres = data_de_venc_nova.split("/");
       let data_nova_convertida = new Date(separa_tres[2], separa_tres[1] - 1, separa_tres[0]);
-      const data = data_nova_convertida.toISOString().split('T')[0];
-      n.DATA_VENC = data;
+      let data = data_nova_convertida.toISOString().split('T')[0];
 
-      const prioridade_nova = prompt(
+      while (data < data_criation_convert) {
+      let date_menor_um = prompt("*A data de vencimento precisa ser maior que a de criação. Digite uma no formato xx/xx/xxxx:\n");
+      let separa_cinco = date_menor_um.split("/");
+      let data_a = new Date(separa_cinco[2], separa_cinco[1] - 1, separa_cinco[0]);
+      let data_aceitada = data_a.toISOString().split('T')[0]
+      data = data_aceitada;
+      }
+      console.log(data)
+      tarefas[0].DATA_VENC = data;
+
+      let descricao_nova = prompt(
+        "Digite uma nova descrição para a tarefa:\n"
+      );
+      if (descricao_nova == null){
+        descricao_nova = "Tarefa sem descrição"
+      }
+      tarefas[0].DESCRICAO = descricao_nova;
+      let prioridade_nova = prompt(
         "Digite uma nova prioridade:\n(Baixa, Media ou Alta)\n"
       );
-      n.PRIORIDADE = prioridade_nova;
+      for (let h = prioridade_nova; h === null; h = prioridade_nova) {
+        const prio_obrig = prompt("*É obrigatório uma prioridade. Digite uma:\n");
+        prioridade_nova = prio_obrig;
+      }
+      tarefas[0].PRIORIDADE = prioridade_nova;
       console.log("\nTarefa editada.");
       console.table(tarefas);
-    }
-  }
+    }   
 }
 
+/*FUNÇÃO REMOVER*/
 export function remover() {
   const remov = prompt("Digite a tarefa que deseja remover: ");
   const decision = prompt(
@@ -177,6 +210,7 @@ export function remover() {
   }
 }
 
+/*FUNÇÃO DE MARCAR COMO CONCLUÍDA UMA TAREFA*/
 export function marcar() {
   const statuspesq = prompt("Digite o título da tarefa pendente:\n");
   let index = tarefas.findIndex((obj) => obj.TITULO === statuspesq);
@@ -194,42 +228,28 @@ export function marcar() {
   }
 }
 
+/*FUNÇÃO PESQUISAR*/
 export function pesquisar() {
   const escolha = prompt(
     "Escolha a forma de pesquisar:\n(1 para pesquisa por título ou 2 para pesquisa por descrição)\n"
   );
   if (escolha == 1) {
     const pesquisa_tit = prompt(
-      "Digite o título da tarefa que deseja pesquisar:\n"
+      "Digite o título completo ou parcial da tarefa que deseja pesquisar:\n"
     );
-
-    for (const b of tarefas) {
-      if (b.TITULO == pesquisa_tit) {
-        console.table({
-          TITULO: b.TITULO,
-          DESCRICAO: b.DESCRICAO,
-          DATA_VENC: b.DATA_VENC,
-          PRIORIDADE: b.PRIORIDADE,
-        });
-      }
-    }
-  } else {
+    const buscaparcial_tit = tarefas.filter((pesq_tit) => pesq_tit.TITULO.includes(pesquisa_tit))
+    console.table(buscaparcial_tit)     
+  }
+  else {
     const pesquisa_des = prompt(
-      "Digite a descrição da tarefa que deseja pesquisar:\n"
+      "Digite a descrição completa ou parcial da tarefa que deseja pesquisar:\n"
     );
-    for (const p of tarefas) {
-      if (p.DESCRICAO == pesquisa_des) {
-        console.table({
-          TITULO: b.TITULO,
-          DESCRICAO: b.DESCRICAO,
-          DATA_VENC: b.DATA_VENC,
-          PRIORIDADE: b.PRIORIDADE,
-        });
-      }
-    }
+    const buscaparcial_des = tarefas.filter((pesq_des) => pesq_des.DESCRICAO.includes(pesquisa_des))
+    console.table(buscaparcial_des)     
   }
 }
 
+/*FUNÇÃO RESUMIR*/
 export function resumo() {
   const quant_tarefas = tarefas.length;
   const quant_tarefas_conc = tarefas_concluidas.length;
@@ -243,5 +263,6 @@ export function resumo() {
   amanha.setDate(hoje.getDate() + 1);
   const amanhaFormatada = amanha.toISOString().split('T')[0];
   const tarefasDeAmanha = tarefas.filter(tarefa => tarefa.DATA_VENC === amanhaFormatada);
+  console.log("Tarefas que vão vencer no dia de amanhã:")
   console.table(tarefasDeAmanha)
 }
